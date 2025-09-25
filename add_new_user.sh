@@ -1,46 +1,53 @@
 #!/bin/bash
 
-# Vérifie si le script est exécuté en root
+# Vérifie que le script est exécuté en tant root
 if [ "$(id -u)" -ne 0 ]; then
-    echo "❌ Ce script doit être exécuté en root."
+    echo "Nécéssite d'être exécuté avec sudo"
     exit 1
 fi
 
-# Vérifie si un nom d’utilisateur a été passé en argument
+# Vérifie qu'un nom a bien été donné en argument
 if [ -z "$1" ]; then
-    echo "Usage: $0 nom_utilisateur"
+    echo "Merci d'indiquer un nom d'utilisateur"
     exit 1
 fi
 
-USERNAME=$1
-USER_HOME="/home/$USERNAME"
+USER=$1
+HOME=/home/$USER
+ADMIN=false
 
-echo "➡️ Création de l’utilisateur : $USERNAME"
-
-# Crée l’utilisateur avec un dossier personnel et shell bash
-useradd -m -d "$USER_HOME" -s /bin/bash "$USERNAME"
-
-# Force l’utilisateur à changer son mot de passe au premier login
-passwd "$USERNAME"
-chage -d 0 "$USERNAME"
-
-# Crée un dossier .ssh sécurisé
-mkdir -p "$USER_HOME/.ssh"
-chmod 700 "$USER_HOME/.ssh"
-chown "$USERNAME:$USERNAME" "$USER_HOME/.ssh"
-
-# Ajoute une clé publique SSH si un fichier existe
-if [ -f "./authorized_keys" ]; then
-    cp ./authorized_keys "$USER_HOME/.ssh/"
-    chmod 600 "$USER_HOME/.ssh/authorized_keys"
-    chown "$USERNAME:$USERNAME" "$USER_HOME/.ssh/authorized_keys"
-    echo "🔑 Clé SSH ajoutée depuis authorized_keys"
-else
-    echo "⚠️ Aucune clé SSH trouvée. Vous pouvez en ajouter manuellement dans $USER_HOME/.ssh/authorized_keys"
+if [ "$2" == "--admin" ]; then
+    ADMIN=true
 fi
 
-# Ajoute l’utilisateur au groupe sudo
-usermod -aG sudo "$USERNAME"
+echo "==> Création de l’utilisateur : $USER"
 
-echo "✅ Utilisateur $USERNAME créé avec succès."
-echo "👉 Connexion : ssh $USERNAME@<IP_SERVEUR>"
+# Crée l'user avec home et shell bash
+useradd -m -d "$HOME" -s /bin/bash "$USER"
+
+# Force l’user à rentrer un mdp
+passwd "$USER"
+chage -d 0 "$USER"
+
+# Création dossier ssh
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+chown "$USER:" "$HOME/.ssh"
+
+# Ajoute une clé rsa_pub
+if [ -f "./authorized_keys" ]; then
+    cp ./authorized_keys "$HOME/.ssh/"
+    chmod 600 "$HOME/.ssh/authorized_keys"
+    chown "$USER" "$HOME/.ssh/authorized_keys"
+    echo "🔑 Clé SSH ajoutée"
+else
+    echo "/!\ Aucune clé SSH trouvée. N'oubliez pas de l'ajouter dans $HOME/.ssh/authorized_keys /!\"
+fi
+
+# Attribution ou non des droits sudo
+if [ "$ADMIN" = true ]; then
+    usermod -aG sudo "$USER"
+    echo "Utilisateur $USER créé AVEC droits administrateur."
+else
+    echo "Utilisateur $USER créé SANS droits administrateur."
+fi
