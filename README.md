@@ -23,7 +23,7 @@ sudo ./add_new_user.sh steeve
 ## monitoring.sh
 
 Pré-requis:
- - Avoir un Mail Transfer Agent configuré sur le serveur:
+ - Avoir un MTA (Mail Transfer Agent) configuré sur le serveur:
    - via Postfix ou équivalent si un serveur SMTP est déjà présent dans l'infrastructure.
    - via un client léger type msmtp.
 - Installation des paquetq mailutils et sysstat.
@@ -39,7 +39,8 @@ Plusieurs variables sont à définir dans le script:
   - DISK_THRESHOLD: Seuil d'occupation du disque.
 
 Les messages d'alertes sont personnalisables comme l'objet du mail envoyé qui se situe à la ligne 68 après 'mail -s' et avant "EMAIL".</br></br>
-Pour une bonne utilisation du script, plusieurs solutions sont possibles:
+
+Pour une bonne utilisation du script, plusieures solutions sont possibles:
 - création d'un cronjob pour exécuter le script à des horaires définis ou à des intervalles de temps spécifiques. Se référer au man de crontab. Ex:
 ```bash
 #La ligne ci-dessous exécutera le script (placé dans /usr/local/sbin) tout les jours et toutes les 30 minutes.
