@@ -47,6 +47,3 @@ Pour une bonne utilisation du script, plusieurs solutions sont possibles:
 ```
 - Utilisation d'un poller de supervision, c'est à dire une machine de l'infrastructure spécialement dédiée à la surveillance des autres machines et qui va exécuter le script via le réseau à des intervalles définis. Cette solution est adaptée aux grosses infrastructures.
 
-
-
--
