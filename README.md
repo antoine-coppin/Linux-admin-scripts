@@ -22,13 +22,9 @@ sudo ./add_new_user.sh steeve
 
 ## monitoring.sh
 
-Pré-requis:
- - Avoir un MTA (Mail Transfer Agent) configuré sur le serveur:
-   - via Postfix ou équivalent si un serveur SMTP est déjà présent dans l'infrastructure.
-   - via un client léger type msmtp.
-- Installation des paquetq mailutils et sysstat.
+Ce script a pour but de monitorer l'usage des ressources CPU, RAM et le taux d'occupation du ou des disques du serveur. Il permet également d'envoyer une alerte par mail dans le cas ou un seuil a été dépassé et de garder une trace de l'usage des ressources dans un fichier de log local.</br>
 
-Ce script a pour but de monitorer l'usage des ressources CPU, RAM et le taux d'occupation du ou des disques du serveur. Il permet également d'envoyer une alerte par mail dans le cas ou un seuil a été dépassé et de garder une trace de l'usage des ressources dans un fichier de log local.</br></br>
+Pour l'envoi de l'alerte mail, vérifier les [pré-requis](#pré-requis-alerte-mail)
 
 Plusieurs variables sont à définir dans le script:
 - EMAIL: ici on renseigne l'adresse mail vers laquelle on veut que l'alerte soit envoyée.
@@ -61,3 +57,12 @@ Pour une bonne utilisation du script, plusieures solutions sont possibles:
 ```
 - Utilisation d'un poller de supervision, c'est à dire une machine de l'infrastructure spécialement dédiée à la surveillance des autres machines et qui va exécuter le script via le réseau à des intervalles définis. Cette solution est adaptée aux grosses infrastructures.
 
+## backup.sh
+
+Ce script a pour but de créer une sauvegarde quotidienne d'un ou plusieurs répertoires, de 
+
+### Pré-requis alerte mail:
+- Avoir un MTA (Mail Transfer Agent) configuré sur le serveur:
+   - via Postfix ou équivalent si un serveur SMTP est déjà présent dans l'infrastructure.
+   - via un client léger type msmtp.
+- Installation du paquet mailutils
