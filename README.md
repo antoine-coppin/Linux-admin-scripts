@@ -28,17 +28,30 @@ Pré-requis:
    - via un client léger type msmtp.
 - Installation des paquetq mailutils et sysstat.
 
-Ce script a pour but de monitorer l'usage des ressources CPU, RAM et le taux d'occupation du ou des disques du serveur. Il permet également d'envoyer une alerte par mail dans le cas ou un seuil a été dépassé et aussi de garder une trace du dépassement dans un fichier de log.</br></br>
+Ce script a pour but de monitorer l'usage des ressources CPU, RAM et le taux d'occupation du ou des disques du serveur. Il permet également d'envoyer une alerte par mail dans le cas ou un seuil a été dépassé et de garder une trace de l'usage des ressources dans un fichier de log local.</br></br>
 
 Plusieurs variables sont à définir dans le script:
 - EMAIL: ici on renseigne l'adresse mail vers laquelle on veut que l'alerte soit envoyée.
-- LOG_FILE: Nom du fichier qui gardera les traces des alertes. Ex: /var/log/alerte_monitoring.log
+- LOG_FILE: Nom du fichier de log où sera inscrit le résultat du script. Ce fichier DOIT être dans le répertoire /var/log/. Ex: /var/log/usage_ressources.log
 - Les seuils: Ici on vient définir en pourcentage les seuils d'utilisation à partir desquels on veut générer une alerte.
   - CPU_THRESHOLD: Seuil utilisation CPU. Une valeur de 80 générera une alerte à chaque éxécution du script ou l'utilisation CPU est supérieure ou égale à 80%.
   - RAM_THRESHOLD: Seuil consommation RAM. Même principe que pour l'utilisation CPU.
   - DISK_THRESHOLD: Seuil d'occupation du disque.
 
 Les messages d'alertes sont personnalisables comme l'objet du mail envoyé qui se situe à la ligne 68 après 'mail -s' et avant "EMAIL".</br></br>
+
+Afin d'éviter que le fichier de log remplisse l'espace disponible, il est important de mettre en place une rotation via logrotate. Pour cela il faut créer un fichier dans /etc/logrotate.d/ qui porte le même nom que notre fichier de log.</br>Dans l'exemple cela donnerai /etc/logrotate.d/usage_ressources (NB: pas d'extension .log). Voici un exemple de configuration:
+```bash
+/var/log/usage_ressources.log {
+    daily                      # rotation quotidienne
+    rotate 7                   # 7 fichiers sont conservés 
+    compress                   # compresse les anciens logs en .gz
+    delaycompress              # compresse à partir du deuxième jour, le fichier de la veille reste donc lisible/non-compressé
+    missingok                  # ne génère pas d'erreur si le fichier n'existe pas
+    notifempty                 # ne fait pas de rotation si le fichier est vide
+    create 640 root root       # crée le nouveau fichier en root:root et avec les droits ugo rw-r----- 
+}
+```
 
 Pour une bonne utilisation du script, plusieures solutions sont possibles:
 - création d'un cronjob pour exécuter le script à des horaires définis ou à des intervalles de temps spécifiques. Se référer au man de crontab. Ex:
