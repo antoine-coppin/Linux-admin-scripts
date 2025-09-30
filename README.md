@@ -45,7 +45,7 @@ Afin d'éviter que le fichier de log remplisse l'espace disponible, il est impor
     delaycompress              # compresse à partir du deuxième jour, le fichier de la veille reste donc lisible/non-compressé
     missingok                  # ne génère pas d'erreur si le fichier n'existe pas
     notifempty                 # ne fait pas de rotation si le fichier est vide
-    create 640 root root       # crée le nouveau fichier en root:root et avec les droits ugo rw-r----- 
+    create 640 root adm       # crée le nouveau fichier en root:adm avec les droits ugo rw-r----- 
 }
 ```
 
@@ -59,10 +59,14 @@ Pour une bonne utilisation du script, plusieures solutions sont possibles:
 
 ## backup.sh
 
-Ce script a pour but de créer une sauvegarde quotidienne d'un ou plusieurs répertoires, de 
+Ce script a pour but de créer une sauvegarde quotidienne d'un répertoire et d'effectuer une rotation. Il log localement le résultat des sauvegardes et des rotations et permet également d'envoyer une alerte mail en cas d'échec à l'une des étapes si les [pré-requis](pré-requis-alerte-mail) sont respectés.
+
+Plusieurs variables doivent être renseignées:
+- SOURCE_DIR: C'est le répertoire que l'on souhaite sauvegarder, par exemple "/etc".
+- RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
 
 ### Pré-requis alerte mail:
 - Avoir un MTA (Mail Transfer Agent) configuré sur le serveur:
    - via Postfix ou équivalent si un serveur SMTP est déjà présent dans l'infrastructure.
    - via un client léger type msmtp.
-- Installation du paquet mailutils
+- Installation du paquet mailutils.
