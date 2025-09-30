@@ -19,7 +19,7 @@ DISK_THRESHOLD=90     # %
 # ===========================
 # Vérification CPU (via mpstat)
 # ===========================
-# mpstat 1 1 -> mesure CPU pendant 1 seconde, 1 rapport
+# mpstat 1 1 -> mesure une fois l'utilisation du CPU pendant 1 seconde
 # $12 = %idle, donc utilisation = 100 - idle
 CPU_USAGE=$(mpstat 1 1 | awk '/Average:/ {print 100 - $12}')
 CPU_USAGE_INT=${CPU_USAGE%.*}    # Transforme le float en int
@@ -27,7 +27,8 @@ CPU_USAGE_INT=${CPU_USAGE%.*}    # Transforme le float en int
 # ===========================
 # Vérification RAM
 # ===========================
-MEMORY_USAGE=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
+# $2 = RAM totale $3 = RAM utilisée : Produit en croix pour obtenir le pourcentage utilisé
+MEMORY_USAGE=$(free | awk '/Mem/ {print $3*100/$2}')
 MEMORY_USAGE_INT=${MEMORY_USAGE%.*}    # Transforme le float en int
 
 # ===========================
@@ -42,11 +43,11 @@ DISK_USAGE_INT=$DISK_USAGE    # Transforme le float en int
 ALERT_MESSAGE=""
 
 if [ "$CPU_USAGE_INT" -ge "$CPU_THRESHOLD" ]; then
-    ALERT_MESSAGE+="CPU élevé : $CPU_USAGE_INT% (seuil $CPU_THRESHOLD%)\n"
+    ALERT_MESSAGE+="Utilisation CPU élevée : $CPU_USAGE_INT% (seuil $CPU_THRESHOLD%)\n"
 fi
 
 if [ "$MEMORY_USAGE_INT" -ge "$RAM_THRESHOLD" ]; then
-    ALERT_MESSAGE+="RAM élevée : $MEMORY_USAGE_INT% (seuil $RAM_THRESHOLD%)\n"
+    ALERT_MESSAGE+="Consommation RAM élevée : $MEMORY_USAGE_INT% (seuil $RAM_THRESHOLD%)\n"
 fi
 
 if [ "$DISK_USAGE_INT" -ge "$DISK_THRESHOLD" ]; then
@@ -54,7 +55,7 @@ if [ "$DISK_USAGE_INT" -ge "$DISK_THRESHOLD" ]; then
 fi
 
 # ===========================
-# Logging + Envoi du mail
+# Logging + Envoi du mail si un ou plusieur seuils sont dépassés.
 # ===========================
 if [ -n "$ALERT_MESSAGE" ]; then
     FULL_MESSAGE="[$DATE] Alerte sur $HOSTNAME\n\n$ALERT_MESSAGE"
@@ -65,4 +66,7 @@ if [ -n "$ALERT_MESSAGE" ]; then
     # Envoi du mail
     echo -e "$FULL_MESSAGE" \
     | mail -s "Alerte Ressources - $HOSTNAME" "$EMAIL"
+else
+    # On log localement même si les seuils ne sont pas dépassés
+    echo "[$DATE] OK - Ressources normales" >> "$LOG_FILE"
 fi
