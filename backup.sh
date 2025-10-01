@@ -43,7 +43,7 @@ if [ $? -eq 0 ]; then
 else
     ERR="[$(date '+%Y-%m-%d %H:%M:%S')] Erreur lors de la sauvegarde de $SOURCE_DIR"
     echo "$ERR" | tee -a "$LOG_FILE"
-    send_alert "$ERR"
+    send_alert "$ERR" # à commenter en cas d'absence de configuration smtp
     exit 1 # interruption du script en cas d'erreur
 fi
 
