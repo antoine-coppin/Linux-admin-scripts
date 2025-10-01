@@ -68,7 +68,7 @@ Ce script a pour but de créer une sauvegarde quotidienne d'un répertoire et d'
 Avant d'éxécuter le script:
 - Créer le répertoire destiné à contenir les backups(NB: si vous le nommait différemment il faudra modifier la variable BACKUP_DIR):
   ```bash
-  sudo mkdir -p /var/backups/
+  sudo mkdir /var/backups/
   ```
 - Plusieurs variables doivent être renseignées:
   - SOURCE_DIR: C'est le répertoire que l'on souhaite sauvegarder, par exemple "/etc".
