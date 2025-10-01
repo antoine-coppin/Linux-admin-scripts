@@ -52,7 +52,11 @@ Afin d'éviter que le fichier de log remplisse l'espace disponible, il est impor
 Pour une bonne utilisation du script, plusieures solutions sont possibles:
 - création d'un cronjob pour exécuter le script à des horaires définis ou à des intervalles de temps spécifiques. Se référer au man de crontab. Ex:
 ```bash
-#La ligne ci-dessous exécutera le script (placé dans /usr/local/sbin) tout les jours et toutes les 30 minutes.
+sudo crontab -e
+```
+La ligne ci-dessous exécutera le script (placé dans /usr/local/sbin) tout les jours et toutes les 30 minutes.
+
+```bash
 30 * * * * /usr/local/sbin/monitoring.sh
 ```
 - Utilisation d'un poller de supervision, c'est à dire une machine de l'infrastructure spécialement dédiée à la surveillance des autres machines et qui va exécuter le script via le réseau à des intervalles définis. Cette solution est adaptée aux grosses infrastructures.
@@ -61,9 +65,25 @@ Pour une bonne utilisation du script, plusieures solutions sont possibles:
 
 Ce script a pour but de créer une sauvegarde quotidienne d'un répertoire et d'effectuer une rotation. Il log localement le résultat des sauvegardes et des rotations et permet également d'envoyer une alerte mail en cas d'échec à l'une des étapes si les [pré-requis](pré-requis-alerte-mail) sont respectés.
 
-Plusieurs variables doivent être renseignées:
-- SOURCE_DIR: C'est le répertoire que l'on souhaite sauvegarder, par exemple "/etc".
-- RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
+Avant d'éxécuter le script:
+- Créer le répertoire destiné à contenir les backups(NB: si vous le nommait différemment il faudra modifier la variable BACKUP_DIR):
+  ```bash
+  sudo mkdir -p /var/backups/
+  ```
+- Plusieurs variables doivent être renseignées:
+  - SOURCE_DIR: C'est le répertoire que l'on souhaite sauvegarder, par exemple "/etc".
+  - RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
+ 
+- Ajouter un cronjob (ou un service systemd):
+  ```bash
+  sudo crontab -e
+  ```
+  La ligne ci-dessous exécutera le script tous les jours à 02h du matin.
+
+  ```bash
+  0 2 * * * /usr/local/sbin/backup.sh
+  ```
+
 
 ### Pré-requis alerte mail:
 - Avoir un MTA (Mail Transfer Agent) configuré sur le serveur:
