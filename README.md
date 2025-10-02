@@ -1,5 +1,15 @@
 # Linux-admin-scripts
-Scripts Bash pour automatiser la configuration de serveurs Linux
+Ce dépôt git à pour objectif de rassembler des scripts bash qui permettent d'automatiser des actions d'aministration de serveurs Linux.</br>
+Sauf exceptions, ces scripts nécessitent les droits administrateurs. ils doivent être éxécutés en tant que root (sudo ./nom_script.sh).
+Plusieurs règles sont à respecter:
+- Placer les scripts dans le répertoire /usr/local/sbin. Dans le cas contraire, il faudra adapter les scripts et modifier la variable PATH dans le bashrc (export PATH=$PATH:/chemin/du/repertoire).
+- Exécuter les scripts en tant que root. Bonne pratique:
+ ```
+ # Depuis le répertoire /usr/local/sbin
+ sudo ./nom_script.sh
+ ```
+- Lire dans ce fichier la description du script pour bien comprendre les actions de ce dernier et renseigner les variables qui le nécéssitent.
+
 
 ## add_new_user.sh
 
