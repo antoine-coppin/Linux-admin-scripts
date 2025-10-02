@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==========================================
 # Bibliothèque d'alertes
-# Envoi par Mail, Mattermost, Log local au choix
+# Envoi par Mail et/ou Mattermost et LOG local
 # avec niveaux INFO / WARNING / ERROR
 # ==========================================
 
