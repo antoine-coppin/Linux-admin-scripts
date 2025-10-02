@@ -3,14 +3,65 @@ Ce dépôt git à pour objectif de rassembler des scripts bash qui permettent d'
 Sauf exceptions, ces scripts nécessitent les droits administrateurs. ils doivent être éxécutés en tant que root (sudo ./nom_script.sh).
 Plusieurs règles sont à respecter:
 - Placer les scripts dans le répertoire /usr/local/sbin. Dans le cas contraire, il faudra adapter les scripts et modifier la variable PATH dans le bashrc (export PATH=$PATH:/chemin/du/repertoire).
+- Créer les scripts en tant que root:
+```bash
+# Depuis le répertoire /usr/local/sbin
+sudo vim nom_script.sh
+  ```
+  Puis on colle le code du script.
+- Donner les droits d'éxécution à l'utilisateur root sur le script (toujours depuis /usr/local/sbin):
+```bash
+sudo chmod u+x nom_script.sh
+```
 - Exécuter les scripts en tant que root. Bonne pratique:
- ```
- # Depuis le répertoire /usr/local/sbin
- sudo ./nom_script.sh
- ```
-- Lire dans ce fichier la description du script pour bien comprendre les actions de ce dernier et renseigner les variables qui le nécéssitent.
+```
+# Depuis le répertoire /usr/local/sbin
+sudo ./nom_script.sh
+```
+- Un système d'alerte mail/mattermost/logs peut être mis en place grâce au script alerts.sh. Vous devez obligatoirement l'installer pour éviter des erreurs.
+- Bien suivre les indications du README pour chaque script pour assurer la bonne éxécution de ces derniers.
 
+La majorité des scripts ont vocation à être éxécutés plusieurs fois, la plupart du temps à intervalles réguliers. Pour cela, la création de cronjob est privilégiée:
+  ```bash
+  # on édite le crontab de l'utilisateur root (sudo) afin que les scripts soient exécutés en tant que root
+  sudo crontab -e
+  ```
+  Se référer au man de cron pour la syntaxe, ci-dessous deux exemples:
+  ```bash
+  # la ligne ci dessous exécute le script monitoring.sh toutes les 30 minutes, tous les jours.
+  30 * * * * /usr/local/sbin/monitoring.sh
+  # la ligne ci dessous exécute le script backup.sh tous les jours à 2h du matin.
+  0 2 * * * /usr/local/sbin/backup.sh
+  ```
+---
+   
+### alerts.sh
 
+Ce script est en réalité une bibliothèque qui est appelée par d'autres scripts. Elle permet d'envoyer des informations sur le déroulement des scripts qui l'utilise, par mail et/ou sur un canal Mattermost et dans un fichier de log local. Bien sûr les alertes Mattermost via webhook nécéssitent la configuration de cette application dans votre infrastructure. Les alertes par mail nécéssite la configuration d'un serveur SMTP au sein de l'infrastructure ainsi que l'installation du paquet mailutils sur les serveurs.</br>
+A la différence des autres, ce script doit obligatoirement être placé dans le répertoire /usr/local/lib/.</br>
+Plusieurs variables sont à renseigner:
+- ALERT_EMAIL: on indique l'adresse mail sur laquelle on souhaite recevoir l'alerte. Si vous ne voulez/pouvez pas utiliser ce système, laissez la variable vide (ALERT_EMAIL="")
+- MATTERMOST_WEBHOOK: on indique l'url du webhook mattermost crée précédemment. Cela permettra d'afficher les alertes dans le canal choisi. Même principe que pour la variable précédente si on ne souhaite pas l'utiliser.
+- ALERT_LOG: on indique le fichier de log où seront inscrites les alertes. Ce fichier doit être dans le répertoire /var/log/.
+
+La fonction send_alert prévoit 3 niveaux d'alerte: INFO, WARNING et ERROR. Ces trois niveaux sont pris en compte dans les scripts qui utilisent cette fonction mais il est possible de modifier le niveau d'une erreur directement depuis le script concerné. Les émojis et icônes (ICON=":nom_icone:") sont personnalisables.</br>
+
+Afin d'éviter que le fichier de log remplisse l'espace disponible, il est important de mettre en place une rotation via logrotate. Pour cela il faut créer un fichier dans /etc/logrotate.d/ qui porte le même nom que le fichier renseigné dans ALERT_LOG.</br>Dans l'exemple cela donnerai /etc/logrotate.d/alerts (NB: pas d'extension .log). Voici un exemple de configuration:
+```bash
+sudo vim /etc/logrotate.d/alerts
+```
+```bash
+/var/log/alerts.log {
+    daily                      # rotation quotidienne
+    rotate 7                   # 7 fichiers sont conservés 
+    compress                   # compresse les anciens logs en .gz
+    delaycompress              # compresse à partir du deuxième jour, le fichier de la veille reste donc lisible/non-compressé
+    missingok                  # ne génère pas d'erreur si le fichier n'existe pas
+    notifempty                 # ne fait pas de rotation si le fichier est vide
+    create 640 root adm       # crée le nouveau fichier en root:adm avec les droits ugo rw-r----- 
+}
+```
+---
 ## add_new_user.sh
 
 Ce script a pour but d'ajouter un nouvel utilisateur à un serveur linux. Il doit être lancé par un administrateur sur le dit serveur en tant que root.
