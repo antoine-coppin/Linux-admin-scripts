@@ -45,11 +45,11 @@ send_alert() {
     # Corps du message
     BODY="[$DATE] ($HOSTNAME) [$LEVEL] $MESSAGE"
 
+    # Le log local est renseigné dans tous les cas.
     # ---- LOG LOCAL ----
-    if [ -n "$ALERT_LOG" ]; then
-        echo "$BODY" >> "$ALERT_LOG"
-    fi
+    echo "$BODY" >> "$ALERT_LOG"
 
+    # Pour le mail et mattermost, on vérifie d'abord que la variable est bien remplie avant d'utiliser ce moyen.
     # ---- ENVOI MAIL ----
     if [ -n "$ALERT_EMAIL" ]; then
         echo "$BODY" | mail -s "$SUBJECT" "$ALERT_EMAIL"
