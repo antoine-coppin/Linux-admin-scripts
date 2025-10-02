@@ -37,7 +37,9 @@ La majorité des scripts ont vocation à être éxécutés plusieurs fois, la pl
    
 ### alerts.sh
 
-Ce script est en réalité une bibliothèque qui est appelée par d'autres scripts. Elle permet d'envoyer des informations sur le déroulement des scripts qui l'utilise, par mail et/ou sur un canal Mattermost et dans un fichier de log local. Bien sûr les alertes Mattermost via webhook nécéssitent la configuration de cette application dans votre infrastructure. Les alertes par mail nécéssite la configuration d'un serveur SMTP au sein de l'infrastructure ainsi que l'installation du paquet mailutils sur les serveurs.</br>
+Ce script est en réalité une bibliothèque qui est appelée par d'autres scripts. Elle permet d'envoyer des informations sur le déroulement des scripts qui l'utilise, par mail et/ou sur un canal Mattermost et dans un fichier de log local. Les scripts qui utilisent ce système d'alerte sont marqués dans ce fichier par le symbole :email:.
+
+Bien sûr les alertes Mattermost via webhook nécéssitent la configuration de cette application dans votre infrastructure. Les alertes par mail nécéssite la configuration d'un serveur SMTP au sein de l'infrastructure ainsi que l'installation du paquet mailutils sur les serveurs.</br></br>
 A la différence des autres, ce script doit obligatoirement être placé dans le répertoire /usr/local/lib/.</br>
 Plusieurs variables sont à renseigner:
 - ALERT_EMAIL: on indique l'adresse mail sur laquelle on souhaite recevoir l'alerte. Si vous ne voulez/pouvez pas utiliser ce système, laissez la variable vide (ALERT_EMAIL="")
@@ -80,51 +82,19 @@ sudo ./add_new_user.sh steeve --admin
 #Création utilisateur "steeve" SANS droits administrateur:
 sudo ./add_new_user.sh steeve
 ```
+---
+## monitoring.sh :email:
 
-## monitoring.sh
+Ce script a pour but de monitorer l'usage des ressources CPU, RAM et le taux d'occupation du ou des disques du serveur.
 
-Ce script a pour but de monitorer l'usage des ressources CPU, RAM et le taux d'occupation du ou des disques du serveur. Il permet également d'envoyer une alerte par mail dans le cas ou un seuil a été dépassé et de garder une trace de l'usage des ressources dans un fichier de log local.</br>
-
-Pour l'envoi de l'alerte mail, vérifier les [pré-requis](#pré-requis-alerte-mail)
-
-Plusieurs variables sont à définir dans le script:
-- EMAIL: ici on renseigne l'adresse mail vers laquelle on veut que l'alerte soit envoyée.
-- LOG_FILE: Nom du fichier de log où sera inscrit le résultat du script. Ce fichier DOIT être dans le répertoire /var/log/. Ex: /var/log/usage_ressources.log
-- Les seuils: Ici on vient définir en pourcentage les seuils d'utilisation à partir desquels on veut générer une alerte.
+Plusieurs variables sont à définir dans le script, il s'agit des seuils d'utilisation à partir desquels on veut générer une alerte:
   - CPU_THRESHOLD: Seuil utilisation CPU. Une valeur de 80 générera une alerte à chaque éxécution du script ou l'utilisation CPU est supérieure ou égale à 80%.
   - RAM_THRESHOLD: Seuil consommation RAM. Même principe que pour l'utilisation CPU.
   - DISK_THRESHOLD: Seuil d'occupation du disque.
+---
+## backup.sh :email:
 
-Les messages d'alertes sont personnalisables comme l'objet du mail envoyé qui se situe à la ligne 68 après 'mail -s' et avant "EMAIL".</br></br>
-
-Afin d'éviter que le fichier de log remplisse l'espace disponible, il est important de mettre en place une rotation via logrotate. Pour cela il faut créer un fichier dans /etc/logrotate.d/ qui porte le même nom que notre fichier de log.</br>Dans l'exemple cela donnerai /etc/logrotate.d/usage_ressources (NB: pas d'extension .log). Voici un exemple de configuration:
-```bash
-/var/log/usage_ressources.log {
-    daily                      # rotation quotidienne
-    rotate 7                   # 7 fichiers sont conservés 
-    compress                   # compresse les anciens logs en .gz
-    delaycompress              # compresse à partir du deuxième jour, le fichier de la veille reste donc lisible/non-compressé
-    missingok                  # ne génère pas d'erreur si le fichier n'existe pas
-    notifempty                 # ne fait pas de rotation si le fichier est vide
-    create 640 root adm       # crée le nouveau fichier en root:adm avec les droits ugo rw-r----- 
-}
-```
-
-Pour une bonne utilisation du script, plusieures solutions sont possibles:
-- création d'un cronjob pour exécuter le script à des horaires définis ou à des intervalles de temps spécifiques. Se référer au man de crontab. Ex:
-```bash
-sudo crontab -e
-```
-La ligne ci-dessous exécutera le script (placé dans /usr/local/sbin) tout les jours et toutes les 30 minutes.
-
-```bash
-30 * * * * /usr/local/sbin/monitoring.sh
-```
-- Utilisation d'un poller de supervision, c'est à dire une machine de l'infrastructure spécialement dédiée à la surveillance des autres machines et qui va exécuter le script via le réseau à des intervalles définis. Cette solution est adaptée aux grosses infrastructures.
-
-## backup.sh
-
-Ce script a pour but de créer une sauvegarde quotidienne d'un répertoire et d'effectuer une rotation. Il log localement le résultat des sauvegardes et des rotations et permet également d'envoyer une alerte mail en cas d'échec à l'une des étapes si les [pré-requis](pré-requis-alerte-mail) sont respectés.
+Ce script a pour but de créer une sauvegarde d'un répertoire et d'effectuer une rotation.
 
 Avant d'éxécuter le script:
 - Créer le répertoire destiné à contenir les backups(NB: si vous le nommait différemment il faudra modifier la variable BACKUP_DIR):
@@ -135,19 +105,5 @@ Avant d'éxécuter le script:
   - SOURCE_DIR: C'est le répertoire que l'on souhaite sauvegarder, par exemple "/etc".
   - RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
  
-- Ajouter un cronjob (ou un service systemd):
-  ```bash
-  sudo crontab -e
-  ```
-  La ligne ci-dessous exécutera le script tous les jours à 02h du matin.
+Pensez à créer un cronjob pour des sauvegardes quotidiennes.
 
-  ```bash
-  0 2 * * * /usr/local/sbin/backup.sh
-  ```
-
-
-### Pré-requis alerte mail:
-- Avoir un MTA (Mail Transfer Agent) configuré sur le serveur:
-   - via Postfix ou équivalent si un serveur SMTP est déjà présent dans l'infrastructure.
-   - via un client léger type msmtp.
-- Installation du paquet mailutils.
