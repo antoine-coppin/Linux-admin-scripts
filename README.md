@@ -46,7 +46,15 @@ Plusieurs variables sont à renseigner:
 - MATTERMOST_WEBHOOK: on indique l'url du webhook mattermost crée précédemment. Cela permettra d'afficher les alertes dans le canal choisi. Même principe que pour la variable précédente si on ne souhaite pas l'utiliser.
 - ALERT_LOG: on indique le fichier de log où seront inscrites les alertes. Ce fichier doit être dans le répertoire /var/log/.
 
-La fonction send_alert prévoit 3 niveaux d'alerte: INFO, WARNING et ERROR. Ces trois niveaux sont pris en compte dans les scripts qui utilisent cette fonction mais il est possible de modifier le niveau d'une erreur directement depuis le script concerné. Les émojis et icônes (ICON=":nom_icone:") sont personnalisables.</br>
+La fonction send_alert prévoit 3 niveaux d'alerte: INFO, WARNING et ERROR. Le niveau d'alerte associé est défini directement dans les scripts. Tous les scripts qui utilisent cette fonction permettent d'utiliser l'option "--quiet" qui permet de ne pas activer la fonction pour les alertes de niveau INFO, seuls les WARNING et ERROR génèrent une alerte.</br>Par eexemple:
+```bash
+# Alertes INFO/WARNING/ERROR activées
+sudo /usr/local/sbin/update.sh
+# Alertes WARNING/ERROR activées
+sudo /usr/local/sbin/update.sh --quiet
+```
+
+Les émojis et icônes (ICON=":nom_icone:") sont personnalisables.</br>
 
 Afin d'éviter que le fichier de log remplisse l'espace disponible, il est important de mettre en place une rotation via logrotate. Pour cela il faut créer un fichier dans /etc/logrotate.d/ qui porte le même nom que le fichier renseigné dans ALERT_LOG.</br>Dans l'exemple cela donnerai /etc/logrotate.d/alerts (NB: pas d'extension .log). Voici un exemple de configuration:
 ```bash
