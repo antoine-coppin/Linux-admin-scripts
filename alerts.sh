@@ -60,7 +60,7 @@ send_alert() {
     if [ -n "$MATTERMOST_WEBHOOK" ]; then
         PAYLOAD=$(cat <<EOF
 {
-    "username": "SysBot",
+    "username": "bot-alert",
     "icon_emoji": "$ICON",
     "text": "$BODY"
 }
