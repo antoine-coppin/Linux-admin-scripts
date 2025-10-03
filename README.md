@@ -21,7 +21,8 @@ sudo ./nom_script.sh
 - Un système d'alerte mail/mattermost/logs peut être mis en place grâce au script alerts.sh. Vous devez obligatoirement l'installer pour éviter des erreurs.
 - Bien suivre les indications du README pour chaque script pour assurer la bonne éxécution de ces derniers.
 
-<a name="cron" />La majorité des scripts ont vocation à être éxécutés plusieurs fois, la plupart du temps à intervalles réguliers. Pour cela, la création de cronjob est privilégiée:
+ La majorité des scripts ont vocation à être éxécutés plusieurs fois, la plupart du temps à intervalles réguliers. Pour cela, la création de cronjob est privilégiée:
+<a name="cron" />
   ```bash
   # on édite le crontab de l'utilisateur root (sudo) afin que les scripts soient exécutés en tant que root
   sudo crontab -e
