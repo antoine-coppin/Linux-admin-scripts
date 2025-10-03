@@ -106,7 +106,7 @@ Plusieurs variables sont à définir dans le script, il s'agit des seuils d'util
 ---
 ## backup.sh :email:
 
-Ce script a pour but de créer une sauvegarde d'un répertoire et d'effectuer une rotation.
+Ce script a pour but de créer une sauvegarde d'un répertoire. Il vérifie l'intégrité de la sauvegarde ainsi qu'un nombre défini des précédentes sauvegardes. Il effectue également une rotation des sauvegardes pour n'en conserver qu'un nombre défini.
 
 Avant d'éxécuter le script:
 - Créer le répertoire destiné à contenir les backups(NB: si vous le nommait différemment il faudra modifier la variable BACKUP_DIR):
@@ -116,8 +116,9 @@ Avant d'éxécuter le script:
 - Plusieurs variables doivent être renseignées:
   - SOURCE_DIR: C'est le répertoire que l'on souhaite sauvegarder, par exemple "/etc".
   - RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
+  - VERIFY_LAST: C'est le nombre de sauvegardes précédentes dont on va vérifier l'intégrité
  
-Pensez à créer un [cronjob](#cron) pour des sauvegardes quotidiennes.
+Pensez à créer un [cronjob](#cron) pour des sauvegardes quotidiennes, hebdomadaires,...
 
 ---
 ## update.sh
