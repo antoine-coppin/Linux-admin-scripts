@@ -36,7 +36,7 @@ chown "$USER:" "$HOME/.ssh"
 
 # Ajoute une clé rsa_pub
 if [ -f "./authorized_keys" ]; then
-    cp ./authorized_keys "$HOME/.ssh/"
+    mv ./authorized_keys "$HOME/.ssh/"
     chmod 600 "$HOME/.ssh/authorized_keys"
     chown "$USER" "$HOME/.ssh/authorized_keys"
     echo "Clé SSH ajoutée"
