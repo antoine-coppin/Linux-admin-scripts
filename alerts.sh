@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==========================================
 # Bibliothèque d'alertes générique
-# Envoi par Mail, Mattermost, Log local
+# Envoi par Mail, Mattermost (avec couleurs), Log local
 # avec niveaux INFO / WARNING / ERROR
 # Inclut le nom du script appelant
 # ==========================================
@@ -24,23 +24,27 @@ send_alert() {
     local DATE=$(date '+%Y-%m-%d %H:%M:%S')
     local SCRIPT_NAME=$(basename "$0")  # nom du script appelant
 
-    # Définition du label et des emojis
+    # Définition du label, emoji et couleur
     case "$LEVEL" in
         INFO)
             SUBJECT="ℹ️ [INFO][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":information_source:"
+            COLOR="#36a64f"
             ;;
         WARNING)
             SUBJECT="⚠️ [WARNING][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":warning:"
+            COLOR="#ffae42"
             ;;
         ERROR)
             SUBJECT="❌ [ERROR][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":x:"
+            COLOR="#ff0000"
             ;;
         *)
             SUBJECT="[ALERTE][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":speech_balloon:"
+            COLOR="#808080"
             ;;
     esac
 
@@ -48,7 +52,6 @@ send_alert() {
     BODY="[$DATE] ($HOSTNAME) [$SCRIPT_NAME] [$LEVEL] $MESSAGE"
 
     # ---- LOG LOCAL ----
-    # Log obligatoire
     echo "$BODY" >> "$ALERT_LOG"
 
     # ---- ENVOI MAIL ----
@@ -60,9 +63,14 @@ send_alert() {
     if [ -n "$MATTERMOST_WEBHOOK" ]; then
         PAYLOAD=$(cat <<EOF
 {
-    "username": "bot-alert",
+    "username": "AlertBot",
     "icon_emoji": "$ICON",
-    "text": "$BODY"
+    "attachments": [
+        {
+            "color": "$COLOR",
+            "text": "$BODY"
+        }
+    ]
 }
 EOF
 )
