@@ -118,6 +118,7 @@ Avant d'éxécuter le script:
   - RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
  
 Pensez à créer un [cronjob](#cron) pour des sauvegardes quotidiennes.
+
 ---
 ## update.sh
 
