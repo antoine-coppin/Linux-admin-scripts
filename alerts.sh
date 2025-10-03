@@ -1,8 +1,9 @@
 #!/bin/bash
 # ==========================================
-# Bibliothèque d'alertes
-# Envoi par Mail et/ou Mattermost et LOG local
+# Bibliothèque d'alertes générique
+# Envoi par Mail, Mattermost, Log local
 # avec niveaux INFO / WARNING / ERROR
+# Inclut le nom du script appelant
 # ==========================================
 
 # ---- CONFIG ----
@@ -21,35 +22,35 @@ send_alert() {
     local MESSAGE="$2"
     local HOSTNAME=$(hostname)
     local DATE=$(date '+%Y-%m-%d %H:%M:%S')
+    local SCRIPT_NAME=$(basename "$0")  # nom du script appelant
 
     # Définition du label et des emojis
     case "$LEVEL" in
         INFO)
-            SUBJECT="ℹ️ [INFO] $HOSTNAME"
+            SUBJECT="ℹ️ [INFO][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":information_source:"
             ;;
         WARNING)
-            SUBJECT="⚠️ [WARNING] $HOSTNAME"
+            SUBJECT="⚠️ [WARNING][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":warning:"
             ;;
         ERROR)
-            SUBJECT="❌ [ERROR] $HOSTNAME"
+            SUBJECT="❌ [ERROR][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":x:"
             ;;
         *)
-            SUBJECT="[ALERTE] $HOSTNAME"
+            SUBJECT="[ALERTE][$SCRIPT_NAME][$HOSTNAME]"
             ICON=":speech_balloon:"
             ;;
     esac
 
     # Corps du message
-    BODY="[$DATE] ($HOSTNAME) [$LEVEL] $MESSAGE"
+    BODY="[$DATE] ($HOSTNAME) [$SCRIPT_NAME] [$LEVEL] $MESSAGE"
 
-    # Le log local est renseigné dans tous les cas.
     # ---- LOG LOCAL ----
+    # Log obligatoire
     echo "$BODY" >> "$ALERT_LOG"
 
-    # Pour le mail et mattermost, on vérifie d'abord que la variable est bien remplie avant d'utiliser ce moyen.
     # ---- ENVOI MAIL ----
     if [ -n "$ALERT_EMAIL" ]; then
         echo "$BODY" | mail -s "$SUBJECT" "$ALERT_EMAIL"
@@ -59,7 +60,7 @@ send_alert() {
     if [ -n "$MATTERMOST_WEBHOOK" ]; then
         PAYLOAD=$(cat <<EOF
 {
-    "username": "sysbot",
+    "username": "SysBot",
     "icon_emoji": "$ICON",
     "text": "$BODY"
 }
