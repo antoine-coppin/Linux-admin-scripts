@@ -1,8 +1,7 @@
 #!/bin/bash
 # ========================================
 # Script de sauvegarde d'un répertoire
-# Sauvegarde quotidienne (cron ou systemd)
-# avec rotation sur X jours
+# Rotation sur X jours
 # Option --quiet : ignore les alertes INFO
 # ========================================
 
