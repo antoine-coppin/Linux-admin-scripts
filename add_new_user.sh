@@ -39,9 +39,9 @@ if [ -f "./authorized_keys" ]; then
     cp ./authorized_keys "$HOME/.ssh/"
     chmod 600 "$HOME/.ssh/authorized_keys"
     chown "$USER" "$HOME/.ssh/authorized_keys"
-    echo "🔑 Clé SSH ajoutée"
+    echo "Clé SSH ajoutée"
 else
-    echo "/!\ Aucune clé SSH trouvée. N'oubliez pas de l'ajouter dans $HOME/.ssh/authorized_keys /!\"
+    echo "/!\ Aucune clé SSH trouvée. N'oubliez pas de l'ajouter dans $HOME/.ssh/authorized_keys /!\ "
 fi
 
 # Attribution ou non des droits sudo
