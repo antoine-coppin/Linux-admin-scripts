@@ -117,4 +117,7 @@ Avant d'éxécuter le script:
   - RETENTION_DAYS: C'est le nombre de jours pendant lesquels une sauvegarde doit être conservée, par exemple "7".
  
 Pensez à créer un [cronjob](#cron) pour des sauvegardes quotidiennes.
+---
+## update.sh
 
+Ce script permet d'effectuer automatiquement les mises à jours des paquets. Aucune variable n'est à renseigner, il génère une alerte WARNING si une action de votre part est nécessaire: redémarrage de l'ordinateur ou suppression de certains paquets obsolètes.
